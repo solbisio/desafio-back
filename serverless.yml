@@ -1,0 +1,70 @@
+service: desafio-back
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  environment:
+    USERS_TABLE: ${self:service}-users-${opt:stage, self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.USERS_TABLE}"
+
+  stage: dev
+  region: sa-east-1
+
+functions:
+  countHit:
+    handler: api/count.hit
+    memorySize: 128
+    description: Envio de requisição para aumentar o contador
+    events:
+      - http: 
+          path: count/hit
+          method: get
+  countGet:
+    handler: api/count.get
+    memorySize: 128
+    description: Envio de requisição receber valor atual do contador
+    events:
+      - http: 
+          path: count/get
+          method: get
+  usersCreate:
+    handler: api/users.create
+    memorySize: 128
+    description: Adicionar usuário utilizando campos email e username 
+    events:
+      - http: 
+          path: users/create
+          method: post
+  usersGet:
+    handler: api/users.get
+    memorySize: 128
+    description: pegar dados do usuário usuário
+    events:
+      - http:
+          path: users/{id}
+          method: get
+          
+resources:
+  Resources:
+    UsersDynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.USERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

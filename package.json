@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.892.0",
+    "aws-sdk-mock": "^5.1.0",
+    "chai": "^4.3.4",
+    "countapi-js": "^1.0.2",
+    "lambda-tester": "^4.0.1",
+    "uuid": "^8.3.2"
+  }
+}
